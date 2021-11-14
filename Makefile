@@ -1,21 +1,28 @@
 NAME= scop
 
-SOURCE=	src/camera.c \
-		src/events.c \
-		src/fileReader.c \
-		src/main.c \
-		src/mesh.c \
-		src/objParser.c \
-		src/renderer.c \
-		src/scop.c \
-		src/Shaders.c \
-		src/stb_image.c \
-		src/texture.c \
-		src/matrix/matrix4.c \
-		src/vector/vector3.c \
-		src/vector/vector4.c
+SOURCE=	camera.c \
+		events.c \
+		fileReader.c \
+		main.c \
+		mesh.c \
+		objParser.c \
+		renderer.c \
+		scop.c \
+		Shaders.c \
+		stb_image.c \
+		texture.c \
+		matrix/matrix4.c \
+		vector/vector3.c \
+		vector/vector4.c \
+		bmp_reader.c
 
-OSOURCEFOLDER= objects/
+OSOURCEFOLDER= .obj/
+
+OVECTORFOLDER= .obj/vector/
+
+OMATRIXFOLDER= .obj/matrix/
+
+SRCFOLDER= src/
 
 OSOURCE= $(addprefix $(OSOURCEFOLDER), $(SOURCE:.c=.o))
 
@@ -25,13 +32,15 @@ FLAGS= -Wall -Werror -Wextra
 
 all: $(NAME)
 
-$(OSOURCEFOLDER):
-	mkdir objects
-	mkdir objects/src
-	mkdir objects/src/matrix
-	mkdir objects/src/vector
+$(OSOURCEFOLDER): $(OVECTORFOLDER) $(OMATRIXFOLDER)
 
-$(OSOURCEFOLDER)%.o: %.c
+$(OVECTORFOLDER):
+	mkdir -p $(OVECTORFOLDER)
+
+$(OMATRIXFOLDER):
+	mkdir -p $(OMATRIXFOLDER)
+
+$(OSOURCEFOLDER)%.o: $(SRCFOLDER)%.c
 	gcc $(FLAGS) -c $< -o $@
 
 $(NAME): $(OSOURCEFOLDER) $(OSOURCE)

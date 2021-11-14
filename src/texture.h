@@ -2,8 +2,8 @@
 # define TEXTURE_H
 
 # include "renderer.h"
-# include "stb_image.h"
 # include <string.h>
+# include "bmp_reader.h"
 
 GLuint	*parseTexture(t_scop* scop);
 void	loadTextures(t_scop* scop, const char* name);

@@ -42,30 +42,29 @@ GLuint *parseTexture(t_scop *scop)
 	else
 		texids[1] = bindTexture(&scop->customTexture);
 
-	stbi_image_free(scop->defaultTexture.data);
+	free(scop->defaultTexture.data);
 	if (scop->customTexture.data)
-		stbi_image_free(scop->customTexture.data);
+		free(scop->customTexture.data);
 
 	return texids;
 }
 
 void	loadTexture(t_texture *texture, const char *path)
 {
-	texture->data = stbi_load(path, &(texture->width), &(texture->height), &(texture->bpp), 0);
+	texture->data = read_bmp(path, &(texture->width), &(texture->height), &(texture->bpp));
 }
 
 void	loadTextures(t_scop *scop, const char *name)
 {
 	char	filePath[50];
 
-	stbi_set_flip_vertically_on_load(1);
-	loadTexture(&(scop->defaultTexture), "res/textures/brick.png");
+	loadTexture(&(scop->defaultTexture), "res/textures/brick.bmp");
 	if (!scop->defaultTexture.data)
 	{
 		printf("Failed to open texture!\n");
 		exit(EXIT_FAILURE);
 	}
 	memset(filePath, 0, 50);
-	sprintf(filePath, "res/textures/%s.png", name);
+	sprintf(filePath, "res/textures/%s.bmp", name);
 	loadTexture(&(scop->customTexture), filePath);
 }
