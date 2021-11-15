@@ -29,8 +29,9 @@ static GLFWwindow* GLInit()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	//mac
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 	window = glfwCreateWindow(screenWidth, screenHeight, "scop", 0, 0);
 	if (!window)
@@ -51,121 +52,121 @@ static GLFWwindow* GLInit()
 	return window;
 }
 
+void	displayUsage()
+{
+	printf("Moving\t\t\t\t\t\tW, A, S, D\n");
+	printf("Move up\t\t\t\t\t\tSPACE\n");
+	printf("Move down\t\t\t\t\tLEFT SHIFT\n");
+	printf("Speed up\t\t\t\t\tLEFT CTRL\n");
+	printf("Rotate the model around the x-axis\t\tUP, DOWN\n");
+	printf("Rotate the model around the y-axis\t\tLEFT, RIGHT\n");
+	printf("Rotate the model around the z-axis\t\t<, >\n");
+	printf("Enable display of triangles\t\t\tT\n");
+	printf("Switch texture\t\t\t\t\tY\n");
+	printf("Exit\t\t\t\t\t\tESC\n\n");
+	printf("Hold LMB to rotate the camera\n\n");
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2)
+	{
+		printf("Usage: ./scop name_of_object_file\n");
 		return 0;
+	}
+
+	displayUsage();
+
 	t_scop	scop;
 	initScop(&scop);
 
 	t_obj* obj = parseObj(argv[1]);
 	t_mesh	mesh;
 	objToMesh(&mesh, obj);
+	printf("Triangles: %ld\n", obj->faceSize / 3);
+	freeObj(obj);
 
 	loadTextures(&scop, argv[1]);
 
-	GLFWwindow* window = GLInit();
+	scop.window = GLInit();
 
 	printf("%s\n", glGetString(GL_VERSION));
 
-	unsigned int vao;
-	GLCall(glGenVertexArrays(1, &vao));
-	GLCall(glBindVertexArray(vao));
+	GLCall(glGenVertexArrays(1, &scop.vao));
+	GLCall(glBindVertexArray(scop.vao));
 
-	GLCall(glEnableVertexArrayAttrib(vao, 0)); // Some weird stuff
+	GLCall(glEnableVertexArrayAttrib(scop.vao, 0));
 
-	unsigned int	buffer = MakeBuffer(GL_ARRAY_BUFFER, mesh.vCount * sizeof(t_vertex), mesh.vertices);
+	scop.vbo = MakeBuffer(GL_ARRAY_BUFFER, mesh.vCount * sizeof(t_vertex), mesh.vertices);
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0));
 	glEnableVertexAttribArray(0);
 
-	if (obj->texCoords)
-	{
-		GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))));
-		glEnableVertexAttribArray(1);
-	}
+	GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))));
+	glEnableVertexAttribArray(1);
 
-	unsigned int	ibo = MakeBuffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.vCount, mesh.idxs);
+	GLCall(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float))));
+	glEnableVertexAttribArray(2);
 
-	printf("Triangles: %ld\n", obj->faceSize / 3);
+	scop.ibo = MakeBuffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.vCount, mesh.idxs);
+
 	freeMesh(&mesh);
-	freeObj(obj);
 
-	unsigned int	shader = CreateShader("res/shaders/VertexBasic.shader", "res/shaders/FragmentBasic.shader");
+	scop.shader = CreateShader("res/shaders/VertexBasic.shader", "res/shaders/FragmentBasic.shader");
 
-	GLCall(glUseProgram(shader));
+	GLCall(glUseProgram(scop.shader));
 
-	GLCall(int colorLocation = glGetUniformLocation(shader, "u_Color"));
-	ASSERT(colorLocation != -1);
+	setLocations(&scop);
 
-	GLCall(int rotLocation = glGetUniformLocation(shader, "rotation"));
-	ASSERT(rotLocation != -1);
+	GLCall(glUniform3f(scop.locations.lightPos, 50.0f, 50.0f, 50.0f));
+	GLCall(glUniform3f(scop.locations.lightColor, 1.0f, 1.0f, 1.0f));
 
-	GLCall(glBindVertexArray(0));
-	GLCall(glUseProgram(0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-	GLuint *texids = parseTexture(&scop);
+	parseTexture(&scop);
 
 	glEnable(GL_DEPTH_TEST);
 
-	GLCall(int perspectiveLoc = glGetUniformLocation(shader, "perspective"));
-	ASSERT(perspectiveLoc != -1);
-	GLCall(int viewLoc = glGetUniformLocation(shader, "view"));
-	ASSERT(viewLoc != -1);
-	size_t frames = 0;
+	setupCam(&scop.camera);
 
-	GLCall(int texTransLocation = glGetUniformLocation(shader, "u_texTrans"));
-	ASSERT(texTransLocation != -1);
-
-	t_camera camera;
-	setupCam(&camera);
-	t_matrix4 matrix;
-
-	float	currentFrame;
-	float	lastFrame = 0.0f;
-	float	deltaTime = 0.0f;
+	size_t	frames = 0;
 	float	start = glfwGetTime();
 
-	while (!glfwWindowShouldClose(window))
+	GLCall(glBindVertexArray(scop.vao));
+
+	while (!glfwWindowShouldClose(scop.window))
 	{
-		currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		calculateDeltaTime(&scop);
 		GLCall(glClearColor(0.9f, 1.0f, 0.4f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		GLCall(glUseProgram(shader));
+		GLCall(glUniform4f(scop.locations.color, scop.textureColor.x, scop.textureColor.y, scop.textureColor.z, 1.0f));
+		GLCall(glUniform1i(scop.locations.tempTexture, scop.tempTex));
+		GLCall(glUniform3f(scop.locations.rotation, scop.rotation.x, scop.rotation.y, scop.rotation.z));
+		if (scop.tempTex > 0)
+		{
+			GLCall(glBindTexture(GL_TEXTURE_2D, scop.texids[scop.tempTex - 1]));
+		}
+		else
+		{
+			GLCall(glBindTexture(GL_TEXTURE_2D, scop.texids[0]));
+		}
 
-		//GLCall(glUniform4f(colorLocation, 0.0f, 0.2f, 0.8f, 1.0f));
-		GLCall(glUniform4f(colorLocation, 0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glUniform3f(rotLocation, scop.anglex, scop.angley, scop.anglez));
-		GLCall(glBindTexture(GL_TEXTURE_2D, texids[scop.tempTex]));
+		processInput(&scop);
 
-		processInput(window, &camera, deltaTime, &scop);
+		GLCall(glUniform4f(scop.locations.perspective, M_PI_4, (float)screenWidth / screenHeight, 0.1f, 100.0f));
 
-		GLCall(glUniform4f(perspectiveLoc, M_PI_4, (float)screenWidth / screenHeight, 0.1f, 100.0f));
+		t_vector3 tmp = scop.camera.position;
+		sumvec3(&tmp, scop.camera.front, -1.0f);
+		lookat(&scop.lookAt, scop.camera.position, tmp, scop.camera.up);
+		GLCall(glUniformMatrix4fv(scop.locations.view, 1, GL_FALSE, (const GLfloat *)&scop.lookAt));
 
-		t_vector3 tmp = camera.position;
-		sumvec3(&tmp, camera.front, -1.0f);
-		lookat(&matrix, camera.position, tmp, camera.up);
-		GLCall(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (const GLfloat *)&matrix));
-
-		GLCall(glUniform1f(texTransLocation, scop.texTrans));
-
-		GLCall(glBindVertexArray(vao));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-
+		GLCall(glUniform1f(scop.locations.texTrans, scop.texTrans));
 		
 		GLCall(glDrawElements(GL_TRIANGLES, mesh.vCount, GL_UNSIGNED_INT, 0));
 
-		scop.angley += M_PI / 4 * deltaTime;
-		if (scop.angley > M_PI * 2.0f)
-			scop.angley -= M_PI * 2.0f;
-		GLCall(glfwSwapBuffers(window));
+		GLCall(glfwSwapBuffers(scop.window));
 		GLCall(glfwPollEvents());
+
 		frames++;
-		scop.texTrans += 0.1 * scop.texSign * deltaTime;
+		scop.texTrans += 0.1 * scop.texSign * scop.deltaTime;
 		if (scop.texTrans > 1.0f)
 			scop.texTrans = 1.0f;
 		if (scop.texTrans < 0.0f)
@@ -174,13 +175,7 @@ int main(int argc, char** argv)
 
 	printf("FPS = %f\n", (float)frames / (glfwGetTime() - start));
 
-	GLCall(glDeleteVertexArrays(1, &vao));
-	GLCall(glDeleteBuffers(1, &buffer));
-	GLCall(glDeleteBuffers(1, &ibo));
-	GLCall(glDeleteProgram(shader));
-	GLCall(glDeleteTextures(2, texids));
-	free(texids);
-	glfwDestroyWindow(window);
+	destructScop(&scop);
 	glfwTerminate();
 	return 0;
 }

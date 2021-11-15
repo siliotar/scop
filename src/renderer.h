@@ -12,8 +12,8 @@
 # include "camera.h"
 # include "scop.h"
 
-# define screenWidth 800
-# define screenHeight 450
+# define screenWidth 1366
+# define screenHeight 768
 
 #define ASSERT(x) if (!(x)) printf("Error!\n");
 #define GLCall(x) GLClearError();\
@@ -21,6 +21,6 @@
 	ASSERT(GLLogCall())
 
 void	GLClearError();
-int	GLLogCall();
+int		GLLogCall();
 
 #endif

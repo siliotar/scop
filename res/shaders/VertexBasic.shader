@@ -2,14 +2,16 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
+layout(location = 2) in vec3 normal;
 
 uniform vec3 rotation;
 uniform vec4 perspective;
 uniform mat4 view;
-uniform vec4 u_Color;
 
 out vec2 v_texCoord;
 out vec4 v_Color;
+out vec3 FragPos;
+out vec3 Normal;
 
 mat4 getPerspective()
 {
@@ -60,5 +62,7 @@ void main()
 	gl_Position = proj * view * vec4(position * rotmat, 1.0);
 	v_texCoord = texCoord;
 	float val = (gl_VertexID % 12) / 3 * 0.25f;
-	v_Color = max(vec4(val, val, val, 1.0f), u_Color);
+	v_Color = vec4(val, val, val, 1.0f);
+	Normal = normal * rotmat;
+	FragPos = position * rotmat;
 };

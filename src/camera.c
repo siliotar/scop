@@ -1,6 +1,6 @@
 #include "camera.h"
 
-static void	updateCameraVectors(t_camera *camera)
+void	updateCameraVectors(t_camera *camera)
 {
 	camera->front.x = cos(camera->yaw) * cos(camera->pitch);
 	camera->front.y = sin(camera->pitch);
@@ -26,49 +26,6 @@ void	setupCam(t_camera* camera)
 	camera->pitch = 0.0f;
 	camera->mouseSensitivity = 0.1f;
 	camera->movementSpeed = 2.5f;
-	updateCameraVectors(camera);
-}
-
-void	processKeyboard(t_camera *camera, t_keys key, float deltaTime)
-{
-	float	velocity = camera->movementSpeed * deltaTime;
-	if (key == FORWARD)
-		sumvec3(&camera->position, camera->front, velocity);
-	else if (key == BACKWARD)
-		sumvec3(&camera->position, camera->front, -velocity);
-	else if (key == LEFT)
-		sumvec3(&camera->position, camera->right, -velocity);
-	else if (key == RIGHT)
-		sumvec3(&camera->position, camera->right, velocity);
-	else if (key == SPACE)
-		sumvec3(&camera->position, camera->worldUp, velocity);
-	else if (key == SHIFT)
-		sumvec3(&camera->position, camera->worldUp, -velocity);
-	else if (key == CTRLP)
-		camera->movementSpeed = 5.0f;
-	else if (key == CTRLR)
-		camera->movementSpeed = 2.5f;
-}
-
-void	processMouse(t_camera *camera, float xoffset, float yoffset)
-{
-	const float maxpitch = M_PI_2 - M_PI / 90.0f;
-	xoffset *= camera->mouseSensitivity;
-	yoffset *= camera->mouseSensitivity;
-
-	xoffset *= M_PI / 180.0f;
-	yoffset *= M_PI / 180.0f;
-
-	camera->yaw += xoffset;
-	camera->pitch += yoffset;
-	while (camera->yaw > 2.0f * M_PI)
-		camera->yaw -= 2 * M_PI;
-	while (camera->yaw < 0.0f)
-		camera->yaw += 2 * M_PI;
-	if (camera->pitch > maxpitch)
-		camera->pitch = maxpitch;
-	if (camera->pitch < -maxpitch)
-		camera->pitch = -maxpitch;
 	updateCameraVectors(camera);
 }
 

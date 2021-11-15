@@ -5,7 +5,7 @@
 # include <string.h>
 # include "bmp_reader.h"
 
-GLuint	*parseTexture(t_scop* scop);
+void	parseTexture(t_scop* scop);
 void	loadTextures(t_scop* scop, const char* name);
 
 #endif

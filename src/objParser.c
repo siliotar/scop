@@ -93,6 +93,7 @@ static float	*parseVertices(FILE *f, char *str, const char *ident, size_t *size)
 	{
 		if (!strncmp(str, ident, strlen(ident)))
 		{
+			int	count = 0;
 			i = skipWhiteSpace(str, strlen(ident) - 1);
 			while (str[i])
 			{
@@ -106,6 +107,12 @@ static float	*parseVertices(FILE *f, char *str, const char *ident, size_t *size)
 				vertices[(*size)++] = atof(&(str[i]));
 				i = skipNum(str, i);
 				i = skipWhiteSpace(str, i);
+				++count;
+			}
+			if ((!strcmp(ident, "v ") && count != 3) || (!strcmp(ident, "vn ") && count != 3) || (!strcmp(ident, "vt ") && count != 2))
+			{
+				printf("obj file corrupted!\n");
+				exit(EXIT_FAILURE);
 			}
 		}
 		fscanf(f, "%c", (char*)&i);

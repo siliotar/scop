@@ -31,40 +31,40 @@ GLuint	bindTexture(t_texture *tex)
 	return texid;
 }
 
-GLuint *parseTexture(t_scop *scop)
+void	parseTexture(t_scop *scop)
 {
-	GLuint	*texids = malloc(sizeof(GLuint) * 2);
-	if (!texids)
-		exit(EXIT_FAILURE);
-	texids[0] = bindTexture(&scop->defaultTexture);
-	if (!scop->customTexture.data)
-		texids[1] = bindTexture(&scop->defaultTexture);
-	else
-		texids[1] = bindTexture(&scop->customTexture);
-
-	free(scop->defaultTexture.data);
-	if (scop->customTexture.data)
-		free(scop->customTexture.data);
-
-	return texids;
+	for (size_t i = 0; i < scop->texCount; i++)
+	{
+		scop->texids[i] = bindTexture(&scop->textures[i]);
+		free(scop->textures[i].data);
+	}
 }
 
-void	loadTexture(t_texture *texture, const char *path)
+void	loadTexture(t_texture *texture, const char *path, int isDefault)
 {
 	texture->data = read_bmp(path, &(texture->width), &(texture->height), &(texture->bpp));
+	if (!texture->data && isDefault)
+	{
+		printf("Failed to open texture!\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	loadTextures(t_scop *scop, const char *name)
 {
 	char	filePath[50];
 
-	loadTexture(&(scop->defaultTexture), "res/textures/brick.bmp");
-	if (!scop->defaultTexture.data)
+	memset(filePath, 0, 50);
+	for (size_t i = 0; i < 4; i++)
 	{
-		printf("Failed to open texture!\n");
-		exit(EXIT_FAILURE);
+		sprintf(filePath, "res/textures/default%li.bmp", i);
+		loadTexture(&(scop->textures[i]), filePath, 1);
 	}
 	memset(filePath, 0, 50);
 	sprintf(filePath, "res/textures/%s.bmp", name);
-	loadTexture(&(scop->customTexture), filePath);
+	loadTexture(&(scop->textures[4]), filePath, 0);
+	if (scop->textures[4].data)
+		scop->texCount = 5;
+	else
+		scop->texCount = 4;
 }

@@ -9,7 +9,6 @@ SOURCE=	camera.c \
 		renderer.c \
 		scop.c \
 		Shaders.c \
-		stb_image.c \
 		texture.c \
 		matrix/matrix4.c \
 		vector/vector3.c \
