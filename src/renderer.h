@@ -10,7 +10,6 @@
 # define _USE_MATH_DEFINES
 # include <math.h>
 # include "camera.h"
-# include "scop.h"
 
 # define screenWidth 1366
 # define screenHeight 768
@@ -22,5 +21,7 @@
 
 void	GLClearError();
 int		GLLogCall();
+unsigned int	MakeBuffer(unsigned int type, unsigned int size, void* data);
+GLFWwindow	*GLInit();
 
 #endif

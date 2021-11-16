@@ -38,6 +38,7 @@ void	parseTexture(t_scop *scop)
 		scop->texids[i] = bindTexture(&scop->textures[i]);
 		free(scop->textures[i].data);
 	}
+	scop->fontTextureId = bindTexture(&scop->fontTexture);
 }
 
 void	loadTexture(t_texture *texture, const char *path, int isDefault)
@@ -45,7 +46,7 @@ void	loadTexture(t_texture *texture, const char *path, int isDefault)
 	texture->data = read_bmp(path, &(texture->width), &(texture->height), &(texture->bpp));
 	if (!texture->data && isDefault)
 	{
-		printf("Failed to open texture!\n");
+		printf("Failed to open texture with the path \"%s\"!\n", path);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -55,11 +56,12 @@ void	loadTextures(t_scop *scop, const char *name)
 	char	filePath[50];
 
 	memset(filePath, 0, 50);
-	for (size_t i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		sprintf(filePath, "res/textures/default%li.bmp", i);
+		sprintf(filePath, "res/textures/default%i.bmp", i);
 		loadTexture(&(scop->textures[i]), filePath, 1);
 	}
+	loadTexture(&(scop->fontTexture), "res/textures/Font.bmp", 1);
 	memset(filePath, 0, 50);
 	sprintf(filePath, "res/textures/%s.bmp", name);
 	loadTexture(&(scop->textures[4]), filePath, 0);

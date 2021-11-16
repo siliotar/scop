@@ -13,7 +13,8 @@ SOURCE=	camera.c \
 		matrix/matrix4.c \
 		vector/vector3.c \
 		vector/vector4.c \
-		bmp_reader.c
+		bmp_reader.c \
+		utils.c
 
 OSOURCEFOLDER= .obj/
 
