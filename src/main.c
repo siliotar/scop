@@ -19,6 +19,5 @@ int main(int argc, char** argv)
 	mainLoop(&scop);
 
 	destructScop(&scop);
-	glfwTerminate();
 	return 0;
 }

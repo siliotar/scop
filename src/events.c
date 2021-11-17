@@ -53,9 +53,7 @@ static void	processMouse(t_camera* camera, float xoffset, float yoffset)
 
 void processInput(t_scop *scop)
 {
-	static char firstMouse;
-	static char tPressed;
-	static char yPressed;
+	static int	flags;
 
 	if (glfwGetKey(scop->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(scop->window, 1);
@@ -92,41 +90,102 @@ void processInput(t_scop *scop)
 	if (glfwGetKey(scop->window, GLFW_KEY_COMMA) == GLFW_PRESS)
 		scop->rotation.z += M_PI / 4 * scop->deltaTime;
 
-	if (!tPressed && glfwGetKey(scop->window, GLFW_KEY_T) == GLFW_PRESS)
+	if (!(flags & TPRESSERD) && glfwGetKey(scop->window, GLFW_KEY_T) == GLFW_PRESS)
 	{
 		scop->texSign *= -1;
-		tPressed = 1;
+		flags |= TPRESSERD;
 	}
-	if (tPressed && glfwGetKey(scop->window, GLFW_KEY_T) == GLFW_RELEASE)
-		tPressed = 0;
+	if (flags & TPRESSERD && glfwGetKey(scop->window, GLFW_KEY_T) == GLFW_RELEASE)
+		flags &= ~TPRESSERD;
 
-	if (!yPressed && glfwGetKey(scop->window, GLFW_KEY_Y) == GLFW_PRESS)
+	if (!(flags & YPRESSERD) && glfwGetKey(scop->window, GLFW_KEY_Y) == GLFW_PRESS)
 	{
 		scop->tempTex++;
 		scop->tempTex %= (scop->texCount + 1);
-		yPressed = 1;
+		flags |= YPRESSERD;
 	}
-	if (yPressed && glfwGetKey(scop->window, GLFW_KEY_Y) == GLFW_RELEASE)
-		yPressed = 0;
+	if (flags & YPRESSERD && glfwGetKey(scop->window, GLFW_KEY_Y) == GLFW_RELEASE)
+		flags &= ~YPRESSERD;
 
 	if (glfwGetMouseButton(scop->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		if (firstMouse == 0)
-		{
-			glfwSetInputMode(scop->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-			glfwSetCursorPos(scop->window, (screenWidth / 2), (screenHeight / 2));
-			firstMouse = 1;
-		}
 		double mouseX;
 		double mouseY;
 		glfwGetCursorPos(scop->window, &mouseX, &mouseY);
-		processMouse(&scop->camera, mouseX - (screenWidth / 2), (screenHeight / 2) - mouseY);
-		glfwSetCursorPos(scop->window, (screenWidth / 2), (screenHeight / 2));
+		if (!(flags & MOUSEPRESSERD) && ((!scop->interf.menuIsOpen && mouseX > 1300 && mouseY < 60) || \
+			(scop->interf.menuIsOpen && mouseX > 1100)))
+		{
+			if (!(flags & INTERFACEPRESSERD))
+			{
+				flags |= INTERFACEPRESSERD;
+				if (mouseX > 1300 && mouseY < 48)
+				{
+					if (scop->interf.menuIsOpen)
+						scop->interf.showColorChanger = 0;
+					scop->interf.menuIsOpen = !scop->interf.menuIsOpen;
+				}
+				else if (mouseX > 1325.0f && mouseY > 60.0f && mouseX < 1349.0f && mouseY < 84.0f)
+					scop->interf.fpsIsOn = !scop->interf.fpsIsOn;
+				else if (mouseX > 1325.0f && mouseY > 108.0f && mouseX < 1349.0f && mouseY < 132.0f)
+				{
+					scop->interf.VSync = !scop->interf.VSync;
+					glfwSwapInterval(scop->interf.VSync);
+				}
+				else if (mouseX > 1100.0f && mouseY > 144.0f && mouseY < 192.0f)
+				{
+					scop->interf.showColorChanger = 1;
+					scop->interf.colorToChange = &scop->backgroundColor;
+				}
+				else if (mouseX > 1100.0f && mouseY > 192.0f && mouseY < 240.0f)
+				{
+					scop->interf.showColorChanger = 1;
+					scop->interf.colorToChange = &scop->modelColor;
+				}
+				else if (mouseX > 1100.0f && mouseY > 240.0f && mouseY < 288.0f)
+				{
+					scop->interf.showColorChanger = 1;
+					scop->interf.colorToChange = &scop->lightColor;
+				}
+				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 638.0f && mouseY < 658.0f)
+					flags |= REDSLIDERPRESSERD;
+				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 686.0f && mouseY < 706.0f)
+					flags |= GREENSLIDERPRESSERD;
+				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 734.0f && mouseY < 754.0f)
+					flags |= BLUESLIDERPRESSERD;
+			}
+			float value = (mouseX - 1150.0f) / 190.0f;
+			if (value < 0.0f)
+				value = 0.0f;
+			else if (value > 1.0f)
+				value = 1.0f;
+			if (flags & REDSLIDERPRESSERD)
+				scop->interf.colorToChange->x = value;
+			else if (flags & GREENSLIDERPRESSERD)
+				scop->interf.colorToChange->y = value;
+			else if (flags & BLUESLIDERPRESSERD)
+				scop->interf.colorToChange->z = value;
+		}
+		else if (!(flags & INTERFACEPRESSERD))
+		{
+			if (!(flags & MOUSEPRESSERD))
+			{
+				glfwSetInputMode(scop->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				mouseX = screenWidth / 2;
+				mouseY = screenHeight / 2;
+				flags |= MOUSEPRESSERD;
+			}
+			processMouse(&scop->camera, mouseX - (screenWidth / 2), (screenHeight / 2) - mouseY);
+			glfwSetCursorPos(scop->window, (screenWidth / 2), (screenHeight / 2));
+		}
 	}
 	else if (glfwGetMouseButton(scop->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
 	{
 		glfwSetInputMode(scop->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		firstMouse = 0;
+		flags &= ~MOUSEPRESSERD;
+		flags &= ~INTERFACEPRESSERD;
+		flags &= ~REDSLIDERPRESSERD;
+		flags &= ~GREENSLIDERPRESSERD;
+		flags &= ~BLUESLIDERPRESSERD;
 	}
 
 	if (scop->rotation.x > M_PI * 2.0f)

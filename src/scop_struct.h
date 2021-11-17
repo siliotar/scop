@@ -6,6 +6,7 @@
 
 typedef struct s_texture
 {
+	GLuint			id;
 	int				bpp;
 	int				width;
 	int				height;
@@ -22,6 +23,8 @@ typedef struct s_locations
 	GLint			perspective;
 	GLint			view;
 	GLint			texTrans;
+	GLint			interfColor;
+	GLint			interfSimpleColor;
 }t_locations;
 
 typedef struct s_vertexArray
@@ -31,6 +34,18 @@ typedef struct s_vertexArray
 	GLuint			ibo;
 }t_vertexArray;
 
+typedef struct s_interface
+{
+	t_texture		font;
+	t_texture		menu;
+	t_texture		circle;
+	char			menuIsOpen;
+	char			fpsIsOn;
+	char			VSync;
+	char			showColorChanger;
+	t_vector3		*colorToChange;
+}t_interface;
+
 typedef struct s_scop
 {
 	t_vector3		rotation;
@@ -38,11 +53,7 @@ typedef struct s_scop
 	unsigned char	tempTex;
 	float			texTrans;
 	t_texture		textures[5];
-	t_texture		fontTexture;
 	unsigned char	texCount;
-	t_vector3		textureColor;
-	GLuint			texids[5];
-	GLuint			fontTextureId;
 	GLFWwindow		*window;
 	t_vertexArray	mainArray;
 	t_vertexArray	interfaceArray;
@@ -54,6 +65,10 @@ typedef struct s_scop
 	t_matrix4		lookAt;
 	t_mesh			mesh;
 	size_t			frames;
+	t_interface		interf;
+	t_vector3		modelColor;
+	t_vector3		backgroundColor;
+	t_vector3		lightColor;
 }t_scop;
 
 

@@ -9,14 +9,14 @@ GLenum	getFormat(int bpp)
 	return GL_RGBA;
 }
 
-GLuint	bindTexture(t_texture *tex)
+static void	bindTexture(t_texture *tex)
 {
 	static int	count;
-	GLuint	texid = 0;
+	tex->id = 0;
 
-	GLCall(glGenTextures(1, &texid));
+	GLCall(glGenTextures(1, &tex->id));
 	GLCall(glActiveTexture(GL_TEXTURE0));
-	GLCall(glBindTexture(GL_TEXTURE_2D, texid));
+	GLCall(glBindTexture(GL_TEXTURE_2D, tex->id));
 
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -27,18 +27,20 @@ GLuint	bindTexture(t_texture *tex)
 	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
 	GLCall(glBindTexture(GL_TEXTURE_2D, count++));
-
-	return texid;
 }
 
 void	parseTexture(t_scop *scop)
 {
 	for (size_t i = 0; i < scop->texCount; i++)
 	{
-		scop->texids[i] = bindTexture(&scop->textures[i]);
+		bindTexture(&scop->textures[i]);
 		free(scop->textures[i].data);
 	}
-	scop->fontTextureId = bindTexture(&scop->fontTexture);
+	bindTexture(&scop->interf.font);
+	bindTexture(&scop->interf.menu);
+	free(scop->interf.menu.data);
+	bindTexture(&scop->interf.circle);
+	free(scop->interf.circle.data);
 }
 
 void	loadTexture(t_texture *texture, const char *path, int isDefault)
@@ -61,7 +63,9 @@ void	loadTextures(t_scop *scop, const char *name)
 		sprintf(filePath, "res/textures/default%i.bmp", i);
 		loadTexture(&(scop->textures[i]), filePath, 1);
 	}
-	loadTexture(&(scop->fontTexture), "res/textures/Font.bmp", 1);
+	loadTexture(&(scop->interf.font), "res/textures/Font.bmp", 1);
+	loadTexture(&(scop->interf.menu), "res/textures/menu.bmp", 1);
+	loadTexture(&(scop->interf.circle), "res/textures/circle.bmp", 1);
 	memset(filePath, 0, 50);
 	sprintf(filePath, "res/textures/%s.bmp", name);
 	loadTexture(&(scop->textures[4]), filePath, 0);
