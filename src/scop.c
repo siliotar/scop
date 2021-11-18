@@ -33,7 +33,7 @@ void	initScop(t_scop *scop, const char *objName)
 
 	t_obj* obj = parseObj(objName);
 	objToMesh(&scop->mesh, obj);
-	printf("Triangles: %ld\n", obj->faceSize / 3);
+	printf("\nTriangles: %ld\n", obj->faceSize / 3);
 	freeObj(obj);
 
 	loadTextures(scop, objName);

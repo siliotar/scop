@@ -1,15 +1,18 @@
 #include "scop.h"
+#include "objChooser.h"
 
 int main(int argc, char** argv)
 {
+	char	buff[50];
+	t_scop	scop;
+
 	if (argc < 2)
 	{
-		printf("Usage: ./scop name_of_object_file\n");
-		return 0;
+		objChooser(buff);
+		initScop(&scop, buff);
 	}
-
-	t_scop	scop;
-	initScop(&scop, argv[1]);
+	else
+		initScop(&scop, argv[1]);
 
 	initMainVertexArray(&scop);
 	initInterfaceVertexArray(&scop);

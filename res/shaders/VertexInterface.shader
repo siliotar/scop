@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 layout(location = 3) in vec4 vertex;
 out vec2 TexCoords;

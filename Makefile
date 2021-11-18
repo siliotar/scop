@@ -16,7 +16,8 @@ SOURCE=	camera.c \
 		bmp_reader.c \
 		utils.c \
 		UI.c \
-		matrix/matrix3.c
+		matrix/matrix3.c \
+		objChooser.c
 
 OSOURCEFOLDER= .obj/
 
