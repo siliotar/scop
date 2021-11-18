@@ -10,6 +10,7 @@
 # include "texture.h"
 # include "events.h"
 # include "Shaders.h"
+# include "UI.h"
 
 void	initScop(t_scop *scop, const char* objName);
 void	setLocations(t_scop *scop);

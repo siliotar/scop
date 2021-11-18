@@ -1,12 +1,12 @@
-#version 450 core
+#version 330 core
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
 layout(location = 2) in vec3 normal;
 
-uniform vec3 rotation;
 uniform vec4 perspective;
 uniform mat4 view;
+uniform mat3 rotmat;
 
 out vec2 v_texCoord;
 out vec4 v_Color;
@@ -28,41 +28,14 @@ mat4 getPerspective()
 	);
 }
 
-mat3 getxrot(float alpha)
-{
-	return mat3(
-		1.0,			0.0,			0.0,
-		0.0,			cos(alpha),		-sin(alpha),
-		0.0,			sin(alpha),		cos(alpha)
-	);
-}
-
-mat3 getyrot(float alpha)
-{
-	return mat3(
-		cos(alpha),		0.0,			sin(alpha),
-		0.0,			1.0,			0.0,
-		-sin(alpha),	0.0,			cos(alpha)
-	);
-}
-
-mat3 getzrot(float alpha)
-{
-	return mat3(
-		cos(alpha),		-sin(alpha),	0.0,
-		sin(alpha),		cos(alpha),		0.0,
-		0.0,			0.0,			1.0
-	);
-}
-
 void main()
 {
-	mat3 rotmat = getxrot(rotation.x) * getyrot(rotation.y) * getzrot(rotation.z);
+	vec3 pos = position * rotmat;
 	mat4 proj = getPerspective();
-	gl_Position = proj * view * vec4(position * rotmat, 1.0);
+	gl_Position = proj * view * vec4(pos, 1.0);
 	v_texCoord = texCoord;
 	float val = (gl_VertexID % 12) / 3 * 0.25f;
 	v_Color = vec4(val, val, val, 1.0f);
 	Normal = normal * rotmat;
-	FragPos = position * rotmat;
+	FragPos = pos;
 };

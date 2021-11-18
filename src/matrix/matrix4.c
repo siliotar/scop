@@ -8,11 +8,6 @@ void	createMatrix4(t_matrix4 *mat, float value)
 	setVector4(&(mat->field[3]), 0.0f, 0.0f, 0.0f, value);
 }
 
-void	deleteMatrix4(t_matrix4* mat)
-{
-	free(mat);
-}
-
 void	translatemat4(t_matrix4 *mat, float x, float y, float z)
 {
 	t_vector4	tmp;

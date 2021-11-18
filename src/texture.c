@@ -60,12 +60,12 @@ void	loadTextures(t_scop *scop, const char *name)
 	memset(filePath, 0, 50);
 	for (int i = 0; i < 4; i++)
 	{
-		sprintf(filePath, "res/textures/default%i.bmp", i);
+		sprintf(filePath, "res/defaultTextures/default%i.bmp", i);
 		loadTexture(&(scop->textures[i]), filePath, 1);
 	}
-	loadTexture(&(scop->interf.font), "res/textures/Font.bmp", 1);
-	loadTexture(&(scop->interf.menu), "res/textures/menu.bmp", 1);
-	loadTexture(&(scop->interf.circle), "res/textures/circle.bmp", 1);
+	loadTexture(&(scop->interf.font), "res/defaultTextures/Font.bmp", 1);
+	loadTexture(&(scop->interf.menu), "res/defaultTextures/menu.bmp", 1);
+	loadTexture(&(scop->interf.circle), "res/defaultTextures/circle.bmp", 1);
 	memset(filePath, 0, 50);
 	sprintf(filePath, "res/textures/%s.bmp", name);
 	loadTexture(&(scop->textures[4]), filePath, 0);

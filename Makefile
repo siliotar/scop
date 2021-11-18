@@ -14,7 +14,9 @@ SOURCE=	camera.c \
 		vector/vector3.c \
 		vector/vector4.c \
 		bmp_reader.c \
-		utils.c
+		utils.c \
+		UI.c \
+		matrix/matrix3.c
 
 OSOURCEFOLDER= .obj/
 

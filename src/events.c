@@ -51,6 +51,73 @@ static void	processMouse(t_camera* camera, float xoffset, float yoffset)
 	updateCameraVectors(camera);
 }
 
+static int	hitInCheckBox(t_scop *scop, char slot, double mouseX, double mouseY)
+{
+	return (mouseX > (scop->screenWidth - 41.0f)) && (mouseX < (scop->screenWidth - 17.0f)) \
+		&& (mouseY > (slot * 48.0f + 12.0f)) && (mouseY < (slot * 48.0f + 36.0f));
+}
+
+static int	hitInSlider(t_scop *scop, char slot, double mouseX, double mouseY)
+{
+	return (scop->interf.showColorChanger) && (mouseX > (scop->screenWidth - 226.0f)) \
+		&& (mouseX < (scop->screenWidth - 16.0f)) && (mouseY > (scop->screenHeight - (slot * 48.0f) + 14.0f)) \
+		&& (mouseY < (scop->screenHeight - (slot * 48.0f) + 34.0f));
+}
+
+static void	processInterface(t_scop *scop, int *flags, double mouseX, double mouseY)
+{
+	if (!(*flags & INTERFACEPRESSERD))
+	{
+		char	slot = mouseY / 48.0;
+		*flags |= INTERFACEPRESSERD;
+		if (mouseX > scop->screenWidth - 66 && mouseY < 48)
+		{
+			if (scop->interf.menuIsOpen)
+				scop->interf.showColorChanger = 0;
+			scop->interf.menuIsOpen = !scop->interf.menuIsOpen;
+		}
+		else if (slot == 1 && hitInCheckBox(scop, slot, mouseX, mouseY))
+			scop->interf.fpsIsOn = !scop->interf.fpsIsOn;
+		else if (slot == 2 && hitInCheckBox(scop, slot, mouseX, mouseY))
+		{
+			scop->interf.VSync = !scop->interf.VSync;
+			glfwSwapInterval(scop->interf.VSync);
+		}
+		else if (slot == 3)
+		{
+			scop->interf.showColorChanger = 1;
+			scop->interf.colorToChange = &scop->backgroundColor;
+		}
+		else if (slot == 4)
+		{
+			scop->interf.showColorChanger = 1;
+			scop->interf.colorToChange = &scop->modelColor;
+		}
+		else if (slot == 5)
+		{
+			scop->interf.showColorChanger = 1;
+			scop->interf.colorToChange = &scop->lightColor;
+		}
+		else if (hitInSlider(scop, 3, mouseX, mouseY))
+			*flags |= REDSLIDERPRESSERD;
+		else if (hitInSlider(scop, 2, mouseX, mouseY))
+			*flags |= GREENSLIDERPRESSERD;
+		else if (hitInSlider(scop, 1, mouseX, mouseY))
+			*flags |= BLUESLIDERPRESSERD;
+	}
+	float value = (mouseX - (scop->screenWidth - 216.0f)) / 190.0f;
+	if (value < 0.0f)
+		value = 0.0f;
+	else if (value > 1.0f)
+		value = 1.0f;
+	if (*flags & REDSLIDERPRESSERD)
+		scop->interf.colorToChange->x = value;
+	else if (*flags & GREENSLIDERPRESSERD)
+		scop->interf.colorToChange->y = value;
+	else if (*flags & BLUESLIDERPRESSERD)
+		scop->interf.colorToChange->z = value;
+}
+
 void processInput(t_scop *scop)
 {
 	static int	flags;
@@ -112,70 +179,22 @@ void processInput(t_scop *scop)
 		double mouseX;
 		double mouseY;
 		glfwGetCursorPos(scop->window, &mouseX, &mouseY);
-		if (!(flags & MOUSEPRESSERD) && ((!scop->interf.menuIsOpen && mouseX > 1300 && mouseY < 60) || \
-			(scop->interf.menuIsOpen && mouseX > 1100)))
+		if (!(flags & MOUSEPRESSERD) && ((!scop->interf.menuIsOpen && mouseX > scop->screenWidth - 66 && mouseY < 60) || \
+			(scop->interf.menuIsOpen && mouseX > scop->screenWidth - 266)))
 		{
-			if (!(flags & INTERFACEPRESSERD))
-			{
-				flags |= INTERFACEPRESSERD;
-				if (mouseX > 1300 && mouseY < 48)
-				{
-					if (scop->interf.menuIsOpen)
-						scop->interf.showColorChanger = 0;
-					scop->interf.menuIsOpen = !scop->interf.menuIsOpen;
-				}
-				else if (mouseX > 1325.0f && mouseY > 60.0f && mouseX < 1349.0f && mouseY < 84.0f)
-					scop->interf.fpsIsOn = !scop->interf.fpsIsOn;
-				else if (mouseX > 1325.0f && mouseY > 108.0f && mouseX < 1349.0f && mouseY < 132.0f)
-				{
-					scop->interf.VSync = !scop->interf.VSync;
-					glfwSwapInterval(scop->interf.VSync);
-				}
-				else if (mouseX > 1100.0f && mouseY > 144.0f && mouseY < 192.0f)
-				{
-					scop->interf.showColorChanger = 1;
-					scop->interf.colorToChange = &scop->backgroundColor;
-				}
-				else if (mouseX > 1100.0f && mouseY > 192.0f && mouseY < 240.0f)
-				{
-					scop->interf.showColorChanger = 1;
-					scop->interf.colorToChange = &scop->modelColor;
-				}
-				else if (mouseX > 1100.0f && mouseY > 240.0f && mouseY < 288.0f)
-				{
-					scop->interf.showColorChanger = 1;
-					scop->interf.colorToChange = &scop->lightColor;
-				}
-				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 638.0f && mouseY < 658.0f)
-					flags |= REDSLIDERPRESSERD;
-				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 686.0f && mouseY < 706.0f)
-					flags |= GREENSLIDERPRESSERD;
-				else if (scop->interf.showColorChanger && mouseX > 1140.0f && mouseX < 1350.0f && mouseY > 734.0f && mouseY < 754.0f)
-					flags |= BLUESLIDERPRESSERD;
-			}
-			float value = (mouseX - 1150.0f) / 190.0f;
-			if (value < 0.0f)
-				value = 0.0f;
-			else if (value > 1.0f)
-				value = 1.0f;
-			if (flags & REDSLIDERPRESSERD)
-				scop->interf.colorToChange->x = value;
-			else if (flags & GREENSLIDERPRESSERD)
-				scop->interf.colorToChange->y = value;
-			else if (flags & BLUESLIDERPRESSERD)
-				scop->interf.colorToChange->z = value;
+			processInterface(scop, &flags, mouseX, mouseY);
 		}
 		else if (!(flags & INTERFACEPRESSERD))
 		{
 			if (!(flags & MOUSEPRESSERD))
 			{
 				glfwSetInputMode(scop->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-				mouseX = screenWidth / 2;
-				mouseY = screenHeight / 2;
+				mouseX = scop->screenWidth / 2;
+				mouseY = scop->screenHeight / 2;
 				flags |= MOUSEPRESSERD;
 			}
-			processMouse(&scop->camera, mouseX - (screenWidth / 2), (screenHeight / 2) - mouseY);
-			glfwSetCursorPos(scop->window, (screenWidth / 2), (screenHeight / 2));
+			processMouse(&scop->camera, mouseX - (scop->screenWidth / 2), (scop->screenHeight / 2) - mouseY);
+			glfwSetCursorPos(scop->window, (scop->screenWidth / 2), (scop->screenHeight / 2));
 		}
 	}
 	else if (glfwGetMouseButton(scop->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)

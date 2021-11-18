@@ -3,6 +3,7 @@
 
 # include "renderer.h"
 # include "mesh.h"
+# include "matrix/matrix3.h"
 
 typedef struct s_texture
 {
@@ -17,11 +18,11 @@ typedef struct s_locations
 {
 	GLint			color;
 	GLint			tempTexture;
-	GLint			rotation;
 	GLint			lightPos;
 	GLint			lightColor;
 	GLint			perspective;
 	GLint			view;
+	GLint			rotmat;
 	GLint			texTrans;
 	GLint			interfColor;
 	GLint			interfSimpleColor;
@@ -49,6 +50,7 @@ typedef struct s_interface
 typedef struct s_scop
 {
 	t_vector3		rotation;
+	t_matrix3		rotmat;
 	char			texSign;
 	unsigned char	tempTex;
 	float			texTrans;
@@ -69,6 +71,8 @@ typedef struct s_scop
 	t_vector3		modelColor;
 	t_vector3		backgroundColor;
 	t_vector3		lightColor;
+	int				screenWidth;
+	int				screenHeight;
 }t_scop;
 
 

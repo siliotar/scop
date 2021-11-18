@@ -65,3 +65,10 @@ float	dotvec3(t_vector3 vec1, t_vector3 vec2)
 {
 	return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
 }
+
+void	setVector3(t_vector3* ret, float x, float y, float z)
+{
+	ret->x = x;
+	ret->y = y;
+	ret->z = z;
+}

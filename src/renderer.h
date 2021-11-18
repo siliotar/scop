@@ -11,9 +11,6 @@
 # include <math.h>
 # include "camera.h"
 
-# define screenWidth 1366
-# define screenHeight 768
-
 #define ASSERT(x) if (!(x)) printf("Error!\n");
 #define GLCall(x) GLClearError();\
 	x;\
