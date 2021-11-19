@@ -5,8 +5,24 @@ static char			*ParseShader(const char* filepath)
 	char	*ret;
 
 	ret = readFile(filepath);
-	if (ret == NULL)
+	if (ret == NULL || strlen(ret) < 12)
+	{
 		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+#ifdef _WIN32
+	ret[9] = '4';
+	ret[10] = '5';
+	ret[11] = '0';
+#elif __APPLE__
+	ret[9] = '4';
+	ret[10] = '1';
+	ret[11] = '0';
+#else
+	ret[9] = '3';
+	ret[10] = '3';
+	ret[11] = '0';
+#endif
 	return ret;
 }
 

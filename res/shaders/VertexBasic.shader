@@ -1,4 +1,4 @@
-#version 450 core
+#version 410 core
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
@@ -38,4 +38,4 @@ void main()
 	v_Color = vec4(val, val, val, 1.0f);
 	Normal = normal * rotmat;
 	FragPos = pos;
-};
+}

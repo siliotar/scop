@@ -1,4 +1,4 @@
-#version 450 core
+#version 410 core
 
 in vec2 TexCoords;
 
@@ -21,4 +21,4 @@ void main()
 	if (temp.w < 0.5f)
 		discard;
 	color = temp;
-};
+}

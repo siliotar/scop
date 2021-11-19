@@ -176,6 +176,9 @@ void processInput(t_scop *scop)
 
 	if (glfwGetMouseButton(scop->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
+#ifdef __APPLE__
+		static double oldX, oldY;
+#endif
 		double mouseX;
 		double mouseY;
 		glfwGetCursorPos(scop->window, &mouseX, &mouseY);
@@ -188,13 +191,24 @@ void processInput(t_scop *scop)
 		{
 			if (!(flags & MOUSEPRESSERD))
 			{
+#ifndef __APPLE__
 				glfwSetInputMode(scop->window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 				mouseX = scop->screenWidth / 2;
 				mouseY = scop->screenHeight / 2;
+#else
+				oldX = mouseX;
+				oldY = mouseY;
+#endif
 				flags |= MOUSEPRESSERD;
 			}
-			processMouse(&scop->camera, mouseX - (scop->screenWidth / 2), (scop->screenHeight / 2) - mouseY);
+#ifndef __APPLE__
+			processMouse(&scop->camera, mouseX - scop->screenWidth / 2, scop->screenHeight / 2 - mouseY);
 			glfwSetCursorPos(scop->window, (scop->screenWidth / 2), (scop->screenHeight / 2));
+#else
+			processMouse(&scop->camera, mouseX - oldX, oldY - mouseY);
+			oldX = mouseX;
+			oldY = mouseY;
+#endif
 		}
 	}
 	else if (glfwGetMouseButton(scop->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)

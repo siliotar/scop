@@ -36,12 +36,19 @@ GLFWwindow	*GLInit()
 		exit(EXIT_FAILURE);
 	}
 
+#ifdef _WIN32
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
+#elif __APPLE__
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#else
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
 	window = glfwCreateWindow(1366, 768, "scop", 0, 0);
@@ -55,7 +62,11 @@ GLFWwindow	*GLInit()
 
 	glfwSwapInterval(1);
 
+#ifndef _WIN32
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+#else
 	if (glewInit() != GLEW_OK)
+#endif
 	{
 		glfwTerminate();
 		exit(EXIT_FAILURE);

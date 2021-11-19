@@ -1,6 +1,11 @@
 NAME= scop
 
-SOURCE=	camera.c \
+UNAME_S := $(shell uname -s)
+
+SRCFOLDER= src/
+
+SOURCE=	$(addprefix $(SRCFOLDER), \
+		camera.c \
 		events.c \
 		fileReader.c \
 		main.c \
@@ -17,37 +22,31 @@ SOURCE=	camera.c \
 		utils.c \
 		UI.c \
 		matrix/matrix3.c \
-		objChooser.c
+		objChooser.c) \
+		libs/glad/src/glad.c
 
 OSOURCEFOLDER= .obj/
 
-OVECTORFOLDER= .obj/vector/
-
-OMATRIXFOLDER= .obj/matrix/
-
-SRCFOLDER= src/
-
 OSOURCE= $(addprefix $(OSOURCEFOLDER), $(SOURCE:.c=.o))
 
-LIBS= -lGL -lglfw3 -lpthread -ldl -lm -lGLEW
+LIBS= -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
+INCLUDES= -I include -I libs/glfw-3.3.5/include -I libs/glad/include
 
 FLAGS= -Wall -Werror -Wextra
 
 all: $(NAME)
 
-$(OSOURCEFOLDER): $(OVECTORFOLDER) $(OMATRIXFOLDER)
+$(OSOURCEFOLDER)%.o: %.c
+	mkdir -p $(dir $@)
+	gcc $(FLAGS) -c $< -o $@ -I /Users/rmass/.brew/include $(INCLUDES)
 
-$(OVECTORFOLDER):
-	mkdir -p $(OVECTORFOLDER)
-
-$(OMATRIXFOLDER):
-	mkdir -p $(OMATRIXFOLDER)
-
-$(OSOURCEFOLDER)%.o: $(SRCFOLDER)%.c
-	gcc $(FLAGS) -c $< -o $@
-
-$(NAME): $(OSOURCEFOLDER) $(OSOURCE)
+ifeq ($(UNAME_S),Darwin)
+$(NAME): $(OSOURCE)
+	gcc $(OSOURCE) -o $(NAME) -framework Cocoa -framework OpenGL -framework QuartzCore -framework IOKit $(LIBS)
+else
+$(NAME): $(OSOURCE)
 	gcc $(OSOURCE) -o $(NAME) $(LIBS)
+endif
 
 clean:
 	rm -rf $(OSOURCEFOLDER)

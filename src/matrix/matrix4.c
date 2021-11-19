@@ -1,4 +1,4 @@
-#include "matrix4.h"
+#include "matrix/matrix4.h"
 
 void	createMatrix4(t_matrix4 *mat, float value)
 {

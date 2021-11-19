@@ -99,7 +99,6 @@ void	initMainVertexArray(t_scop *scop)
 	GLCall(glGenVertexArrays(1, &scop->mainArray.vao));
 	GLCall(glBindVertexArray(scop->mainArray.vao));
 
-	GLCall(glEnableVertexArrayAttrib(scop->mainArray.vao, 0));
 
 	scop->mainArray.vbo = MakeBuffer(GL_ARRAY_BUFFER, scop->mesh.vCount * sizeof(t_vertex), scop->mesh.vertices);
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0));
@@ -133,7 +132,6 @@ void	initInterfaceVertexArray(t_scop	*scop)
 	GLCall(glGenVertexArrays(1, &scop->interfaceArray.vao));
 	GLCall(glBindVertexArray(scop->interfaceArray.vao));
 
-	GLCall(glEnableVertexArrayAttrib(scop->interfaceArray.vao, 0));
 	GLCall(glGenBuffers(1, &scop->interfaceArray.vbo));
 
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, scop->interfaceArray.vbo));
@@ -195,9 +193,12 @@ void	checkResize(t_scop *scop)
 
 	w = scop->screenWidth;
 	h = scop->screenHeight;
-	glfwGetWindowSize(scop->window, &scop->screenWidth , &scop->screenHeight);
-	if (w != scop->screenWidth || h != scop->screenWidth)
-		glViewport(0, 0, scop->screenWidth, scop->screenHeight);
+	glfwGetWindowSize(scop->window, &scop->screenWidth, &scop->screenHeight);
+	if (w != scop->screenWidth || h != scop->screenHeight)
+	{
+		glfwGetFramebufferSize(scop->window, &w, &h);
+		glViewport(0, 0, w, h);
+	}
 }
 
 void	mainLoop(t_scop *scop)

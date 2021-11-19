@@ -1,4 +1,4 @@
-#include "vector3.h"
+#include "vector/vector3.h"
 
 float	lengthv3(t_vector3 vec)
 {

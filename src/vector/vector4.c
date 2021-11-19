@@ -1,4 +1,4 @@
-#include "vector4.h"
+#include "vector/vector4.h"
 
 void	setVector4(t_vector4* ret, float x, float y, float z, float w)
 {

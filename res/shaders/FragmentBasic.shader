@@ -1,4 +1,4 @@
-#version 450 core
+#version 410 core
 
 out vec4 FragColor;
 
@@ -29,4 +29,4 @@ void main()
 		objectColor = max(texture(u_Texture, v_texCoord) * u_texTrans, v_Color * (1.0f - u_texTrans));
 	vec3	result = (ambient + diffuse) * vec3(objectColor);
 	FragColor = vec4(result, 1.0f);
-};
+}
