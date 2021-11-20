@@ -49,6 +49,7 @@ $(OBJDIR)%.o: %.c
 	gcc $(FLAGS) -c $< -o $@ $(INCLUDES)
 
 $(NAME): $(DEP) $(OBJ)
+	cd libs/glfw-3.3.5 && cmake . && make --silent
 ifeq ($(UNAME_S),Darwin)
 	gcc $(OBJ) -o $(NAME) -framework Cocoa -framework OpenGL -framework QuartzCore -framework IOKit $(LIBS)
 else
