@@ -33,7 +33,7 @@ OBJ = $(addprefix $(OBJDIR), $(SOURCE:.c=.o))
 
 DEP = $(addprefix $(DEPDIR), $(SOURCE:.c=.d))
 
-ifeq ($(UNAME_S),Datwin)
+ifeq ($(UNAME_S),Darwin)
 LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
 else
 LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -lGL -lX11 -L ./libs/
