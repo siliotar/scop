@@ -34,12 +34,12 @@ OBJ = $(addprefix $(OBJDIR), $(SOURCE:.c=.o))
 DEP = $(addprefix $(DEPDIR), $(SOURCE:.c=.d))
 
 ifeq ($(UNAME_S),Darwin)
-LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
+LIBS = -L ./libs/glfw/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
 else
-LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -lGL -lX11 -L ./libs/
+LIBS = -L ./libs/glfw/src/ -lglfw3 -lpthread -ldl -lm -lGL -lX11 -L ./libs/
 endif
 
-INCLUDES = -I include -I libs/glfw-3.3.5/include -I libs/glad/include
+INCLUDES = -I include -I libs/glfw/include -I libs/glad/include
 
 FLAGS = -Wall -Werror -Wextra
 
@@ -54,7 +54,7 @@ $(OBJDIR)%.o: %.c
 	gcc $(FLAGS) -c $< -o $@ $(INCLUDES)
 
 $(NAME): $(DEP) $(OBJ)
-	cd libs/glfw-3.3.5 && cmake . && make --silent
+	cd libs/glfw && cmake . && make --silent
 ifeq ($(UNAME_S),Darwin)
 	gcc $(OBJ) -o $(NAME) -framework Cocoa -framework OpenGL -framework QuartzCore -framework IOKit $(LIBS)
 else

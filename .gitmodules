@@ -1,0 +1,6 @@
+[submodule "libs/glfw"]
+	path = libs/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "libs/glad"]
+	path = libs/glad
+	url = https://github.com/siliotar/glad-4.1-core.git
